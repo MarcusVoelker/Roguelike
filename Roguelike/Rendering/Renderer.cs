@@ -16,7 +16,9 @@ namespace Roguelike.Rendering
         private readonly RenderTexture textTarget;
         private readonly RenderTexture worldTarget;
         private readonly int tileSize;
-        private readonly Font font;
+        private readonly Font font = new Font("audimat.ttf");
+        private int playerX = 0;
+        private int playerY = 0;
 
         public Renderer(RenderTarget mainTarget, int tileSize)
         {
@@ -25,7 +27,6 @@ namespace Roguelike.Rendering
             statusTarget = new RenderTexture((uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
             textTarget = new RenderTexture(mainTarget.Size.X, (uint)(tileSize * 10));
             worldTarget = new RenderTexture(mainTarget.Size.X - (uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
-            font = new Font("audimat.ttf");
         }
 
         private void ComposeImage()
@@ -47,6 +48,13 @@ namespace Roguelike.Rendering
             mainTarget.Draw(wSprite);
         }
 
+        private void RenderToTile<T>(RenderTarget target, int x, int y, T sprite)
+            where T : Transformable, Drawable
+        {
+            sprite.Position = new Vector2f(x * tileSize, y * tileSize);
+            target.Draw(sprite);
+        }
+
         private void RenderText(RenderTarget target, params string[] text)
         {
             var tilesX = target.Size.X / tileSize;
@@ -55,19 +63,15 @@ namespace Roguelike.Rendering
             var horizontalBorder = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Green };
             for (var x = 1; x < tilesX - 1; ++x)
             {
-                horizontalBorder.Position = new Vector2f(x * tileSize, 0);
-                target.Draw(horizontalBorder);
-                horizontalBorder.Position = new Vector2f(x * tileSize, target.Size.Y - tileSize);
-                target.Draw(horizontalBorder);
+                RenderToTile(target, x, 0, horizontalBorder);
+                RenderToTile(target, x, (int)(tilesY - 1), horizontalBorder);
             }
 
             var verticalBorder = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Green };
             for (var y = 1; y < tilesY - 1; ++y)
             {
-                verticalBorder.Position = new Vector2f(0, y * tileSize);
-                target.Draw(verticalBorder);
-                verticalBorder.Position = new Vector2f(target.Size.X - tileSize, y * tileSize);
-                target.Draw(verticalBorder);
+                RenderToTile(target, 0, y, verticalBorder);
+                RenderToTile(target, (int)tilesX - 1, y, verticalBorder);
             }
 
             var texts = text.Select(s => new Text(s, font)).ToList();
@@ -82,15 +86,22 @@ namespace Roguelike.Rendering
 
         private void RenderCharacter(int x, int y)
         {
-            var chara = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Red, Position = new Vector2f(x * tileSize, y * tileSize) };
-            worldTarget.Draw(chara);
+            var chara = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Red };
+            RenderToTile(worldTarget, x, y, chara);
+        }
+
+        public void UpdatePlayerPosition(int dx, int dy)
+        {
+            playerX += dx;
+            playerY += dy;
         }
 
         public void Render()
         {
+            worldTarget.Clear();
             RenderText(statusTarget, "Text1", "Text2", "  Text3");
             RenderText(textTarget, "You started the game! Welcome.");
-            RenderCharacter(3,4);
+            RenderCharacter(playerX, playerY);
             ComposeImage();
         }
     }
