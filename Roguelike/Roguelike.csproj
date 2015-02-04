@@ -67,6 +67,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logic\Logic.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Rendering\Renderer.cs" />
     <Compile Include="World\Map.cs" />

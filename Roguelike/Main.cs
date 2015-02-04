@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Roguelike.Logic;
 using Roguelike.Rendering;
 using Roguelike.World;
 using SFML.Graphics;
@@ -13,6 +14,7 @@ namespace Roguelike
 {
     static class MainClass
     {
+        private static EntityLogic playerLogic = new EntityLogic();
         private static Renderer _renderer;
         private static void CloseWindow(object obj, EventArgs args)
         {
@@ -25,24 +27,44 @@ namespace Roguelike
         {
             var key = args as KeyEventArgs;
             Debug.Assert(key != null, "Broken Keypress Event!");
-            if (key.Code == Keyboard.Key.Left)
+            if (key.Code == Keyboard.Key.H)
             {
-                _renderer.UpdatePlayerPosition(-1, 0);
+                playerLogic.Pos += new Vector2i(-1, 0);
                 return;
             }
-            if (key.Code == Keyboard.Key.Right)
+            if (key.Code == Keyboard.Key.L)
             {
-                _renderer.UpdatePlayerPosition(1, 0);
+                playerLogic.Pos += new Vector2i(1, 0);
                 return;
             }
-            if (key.Code == Keyboard.Key.Up)
+            if (key.Code == Keyboard.Key.K)
             {
-                _renderer.UpdatePlayerPosition(0, -1);
+                playerLogic.Pos += new Vector2i(0, -1);
                 return;
             }
-            if (key.Code == Keyboard.Key.Down)
+            if (key.Code == Keyboard.Key.J)
             {
-                _renderer.UpdatePlayerPosition(0, 1);
+                playerLogic.Pos += new Vector2i(0, 1);
+                return;
+            }
+            if (key.Code == Keyboard.Key.Y)
+            {
+                playerLogic.Pos += new Vector2i(-1, -1);
+                return;
+            }
+            if (key.Code == Keyboard.Key.U)
+            {
+                playerLogic.Pos += new Vector2i(1, -1);
+                return;
+            }
+            if (key.Code == Keyboard.Key.B)
+            {
+                playerLogic.Pos += new Vector2i(-1, 1);
+                return;
+            }
+            if (key.Code == Keyboard.Key.N)
+            {
+                playerLogic.Pos += new Vector2i(1, 1);
                 return;
             }
         }
@@ -54,12 +76,14 @@ namespace Roguelike
             window.KeyPressed += KeyPressed;
 
             _renderer = new Renderer(window,16);
+            playerLogic.PosUpdate += _renderer.UpdatePlayerPosition;
             var rnd = new Random();
             var map = new List<bool>();
-            for (int i = 0; i < 400; ++i)
-                map.Add(rnd.Next() % 2 == 1);
+            for (int i = 0; i < 10000; ++i)
+                map.Add(rnd.Next() % 4 != 1);
 
-            _renderer.Map = new Map(20,20,map);
+            _renderer.Map = new Map(100,100,map);
+            playerLogic.Map = _renderer.Map;
             while (window.IsOpen())
             {
                 window.DispatchEvents();

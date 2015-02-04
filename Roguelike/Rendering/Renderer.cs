@@ -20,14 +20,16 @@ namespace Roguelike.Rendering
         private readonly Font font = new Font("audimat.ttf");
         private int playerX = 0;
         private int playerY = 0;
+        private const int statusWidth = 20;
+        private const int textHeight = 10;
 
         public Renderer(RenderTarget mainTarget, int tileSize)
         {
             this.mainTarget = mainTarget;
             this.tileSize = tileSize;
-            statusTarget = new RenderTexture((uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
+            statusTarget = new RenderTexture((uint)(statusWidth * tileSize), mainTarget.Size.Y - (uint)(tileSize * 10));
             textTarget = new RenderTexture(mainTarget.Size.X, (uint)(tileSize * 10));
-            worldTarget = new RenderTexture(mainTarget.Size.X - (uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
+            worldTarget = new RenderTexture(mainTarget.Size.X - (uint)(tileSize * statusWidth), mainTarget.Size.Y - (uint)(tileSize * 10));
             Map = null;
         }
 
@@ -42,7 +44,7 @@ namespace Roguelike.Rendering
             var stSprite = new Sprite(statusTarget.Texture);
             var txSprite = new Sprite(textTarget.Texture);
             var wSprite = new Sprite(worldTarget.Texture);
-            stSprite.Position = new Vector2f(mainTarget.Size.X - (uint)(tileSize * 20), 0);
+            stSprite.Position = new Vector2f(mainTarget.Size.X - (uint)(tileSize * statusWidth), 0);
             txSprite.Position = new Vector2f(0, mainTarget.Size.Y - (uint)(tileSize * 10));
             wSprite.Position = new Vector2f(0, 0);
 
@@ -94,10 +96,10 @@ namespace Roguelike.Rendering
             RenderToTile(worldTarget, x, y, chara);
         }
 
-        public void UpdatePlayerPosition(int dx, int dy)
+        public void UpdatePlayerPosition(object sender, Vector2i pos)
         {
-            playerX += dx;
-            playerY += dy;
+            playerX = pos.X;
+            playerY = pos.Y;
         }
 
         private void RenderMap()
@@ -120,6 +122,7 @@ namespace Roguelike.Rendering
             RenderText(statusTarget, "Text1", "Text2", "  Text3");
             RenderText(textTarget, "You started the game! Welcome.");
             RenderMap();
+
             RenderCharacter(playerX, playerY);
             ComposeImage();
         }
