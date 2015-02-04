@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Roguelike.Rendering;
+using Roguelike.World;
 using SFML.Graphics;
 using SFML.Window;
 
@@ -53,6 +54,12 @@ namespace Roguelike
             window.KeyPressed += KeyPressed;
 
             _renderer = new Renderer(window,16);
+            var rnd = new Random();
+            var map = new List<bool>();
+            for (int i = 0; i < 400; ++i)
+                map.Add(rnd.Next() % 2 == 1);
+
+            _renderer.Map = new Map(20,20,map);
             while (window.IsOpen())
             {
                 window.DispatchEvents();

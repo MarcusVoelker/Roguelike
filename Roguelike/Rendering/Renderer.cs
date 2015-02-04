@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using Roguelike.World;
 using SFML.Graphics;
 using SFML.Window;
 
@@ -27,7 +28,10 @@ namespace Roguelike.Rendering
             statusTarget = new RenderTexture((uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
             textTarget = new RenderTexture(mainTarget.Size.X, (uint)(tileSize * 10));
             worldTarget = new RenderTexture(mainTarget.Size.X - (uint)(tileSize * 20), mainTarget.Size.Y - (uint)(tileSize * 10));
+            Map = null;
         }
+
+        public Map Map { get; set; }
 
         private void ComposeImage()
         {
@@ -96,11 +100,26 @@ namespace Roguelike.Rendering
             playerY += dy;
         }
 
+        private void RenderMap()
+        {
+            var passableTile = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Blue };
+            var impassableTile = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Cyan };
+            for (int y = 0; y < Map.SizeY; ++y)
+                for (int x = 0; x < Map.SizeX; ++x)
+                {
+                    if (Map.IsPassable(x, y))
+                        RenderToTile(worldTarget, x, y, passableTile);
+                    else
+                        RenderToTile(worldTarget, x, y, impassableTile);
+                }
+        }
+
         public void Render()
         {
             worldTarget.Clear();
             RenderText(statusTarget, "Text1", "Text2", "  Text3");
             RenderText(textTarget, "You started the game! Welcome.");
+            RenderMap();
             RenderCharacter(playerX, playerY);
             ComposeImage();
         }

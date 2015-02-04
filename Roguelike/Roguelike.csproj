@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="Rendering\Renderer.cs" />
+    <Compile Include="World\Map.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
