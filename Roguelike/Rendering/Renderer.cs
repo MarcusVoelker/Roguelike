@@ -92,8 +92,9 @@ namespace Roguelike.Rendering
 
         private void RenderCharacter(int x, int y)
         {
+            var adj = CameraAdjustment();
             var chara = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Red };
-            RenderToTile(worldTarget, x, y, chara);
+            RenderToTile(worldTarget, x - adj.X, y - adj.Y, chara);
         }
 
         public void UpdatePlayerPosition(object sender, Vector2i pos)
@@ -102,17 +103,28 @@ namespace Roguelike.Rendering
             playerY = pos.Y;
         }
 
+        private Vector2i CameraAdjustment()
+        {
+            var tilesX = worldTarget.Size.X / tileSize;
+            var tilesY = worldTarget.Size.Y / tileSize;
+            return new Vector2i(
+                Math.Min(Math.Max(0, (int)(playerX - tilesX / 2)), (int)(Map.SizeX - tilesX)),
+                Math.Min(Math.Max(0, (int)(playerY - tilesY / 2)), (int)(Map.SizeY - tilesY))
+                );
+        }
         private void RenderMap()
         {
             var passableTile = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Blue };
             var impassableTile = new RectangleShape(new Vector2f(tileSize, tileSize)) { FillColor = Color.Cyan };
+
+            var adj = CameraAdjustment();
             for (int y = 0; y < Map.SizeY; ++y)
                 for (int x = 0; x < Map.SizeX; ++x)
                 {
                     if (Map.IsPassable(x, y))
-                        RenderToTile(worldTarget, x, y, passableTile);
+                        RenderToTile(worldTarget, x - adj.X, y - adj.Y, passableTile);
                     else
-                        RenderToTile(worldTarget, x, y, impassableTile);
+                        RenderToTile(worldTarget, x - adj.X, y - adj.Y, impassableTile);
                 }
         }
 
